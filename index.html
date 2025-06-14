@@ -16,9 +16,18 @@
         justify-content: center;
         min-height: 100vh;
         margin: 0;
-        padding: 10px;
+        padding: 15px;
         background: #f7f7f7;
         overflow-x: hidden;
+      }
+
+      /* 모바일 최적화 */
+      @media (max-width: 480px) {
+        body {
+          padding: 10px;
+          justify-content: flex-start;
+          padding-top: 20px;
+        }
       }
       /* 입력 영역: 위로 10칸 이동 (-200px) */
       #inputArea {
@@ -28,21 +37,39 @@
         width: 100%;
         max-width: 360px;
       }
+
+      /* 모바일에서 입력 영역 조정 */
+      @media (max-width: 480px) {
+        #inputArea {
+          margin-top: -120px;
+          gap: 10px;
+          max-width: 100%;
+        }
+      }
       /* 입력창과 버튼 높이 2배 (80px) */
       #newMenu {
         flex: 1;
         height: 80px;
         padding: 8px;
-        font-size: clamp(14px, 4vw, 20px);
+        font-size: clamp(28px, 8vw, none);
         border-radius: 8px;
         border: 1px solid #ccc;
+      }
+
+      /* 모바일에서 입력창 조정 */
+      @media (max-width: 480px) {
+        #newMenu {
+          height: 60px;
+          font-size: clamp(32px, 8vw, none);
+          padding: 12px;
+        }
       }
       /* 추가 버튼: 돌려 버튼과 동일한 크기 (100px x 80px) */
       #addBtn {
         width: 100px;
         min-width: 100px;
         height: 80px;
-        font-size: clamp(14px, 4vw, 20px);
+        font-size: clamp(28px, 8vw, none);
         background: #000;
         color: #fff;
         border: none;
@@ -50,12 +77,31 @@
         cursor: pointer;
         flex-shrink: 0;
       }
+
+      /* 모바일에서 추가 버튼 조정 */
+      @media (max-width: 480px) {
+        #addBtn {
+          width: 80px;
+          min-width: 80px;
+          height: 60px;
+          font-size: clamp(28px, 8vw, none);
+        }
+      }
       /* 룰렛 */
       #container {
         position: relative;
         width: 360px;
         height: 360px;
         margin-top: 40px;
+      }
+
+      /* 모바일에서 룰렛 크기 조정 */
+      @media (max-width: 480px) {
+        #container {
+          width: min(320px, 90vw);
+          height: min(320px, 90vw);
+          margin-top: 30px;
+        }
       }
       svg {
         width: 100%;
@@ -79,12 +125,22 @@
         margin-top: 30px;
         width: 100px;
         height: 80px;
-        font-size: clamp(14px, 5vw, 24px);
+        font-size: clamp(28px, 10vw, none);
         background: #000;
         color: #fff;
         border: none;
         border-radius: 8px;
         cursor: pointer;
+      }
+
+      /* 모바일에서 돌려 버튼 조정 */
+      @media (max-width: 480px) {
+        #spinBtn {
+          width: 80px;
+          height: 60px;
+          margin-top: 20px;
+          font-size: clamp(32px, 10vw, none);
+        }
       }
       button:disabled {
         opacity: 0.6;
@@ -92,9 +148,19 @@
       /* 결과 */
       #result {
         margin-top: 20px;
-        font-size: clamp(16px, 5vw, 28px);
+        font-size: clamp(32px, 10vw, none);
         font-weight: 700;
         color: #2c3e50;
+      }
+
+      /* 모바일에서 결과 텍스트 조정 */
+      @media (max-width: 480px) {
+        #result {
+          margin-top: 15px;
+          font-size: clamp(36px, 12vw, none);
+          text-align: center;
+          padding: 0 10px;
+        }
       }
       /* 팝업 */
       #overlay,
@@ -121,15 +187,25 @@
         border-radius: 8px;
         text-align: center;
         z-index: 1001;
+        max-width: 90vw;
+      }
+
+      /* 모바일에서 팝업 조정 */
+      @media (max-width: 480px) {
+        #popup {
+          padding: 25px 20px;
+          border-radius: 12px;
+          max-width: 85vw;
+        }
       }
       #popup h2 {
         margin: 0 0 12px;
-        font-size: clamp(18px, 6vw, 32px);
+        font-size: clamp(36px, 12vw, none);
       }
       #popup button {
         margin-top: 12px;
         padding: 8px 16px;
-        font-size: clamp(14px, 4vw, 20px);
+        font-size: clamp(28px, 8vw, none);
       }
       #confetti {
         position: fixed;
@@ -391,7 +467,7 @@
         t.setAttribute('text-anchor', 'middle');
         t.setAttribute('transform', `rotate(90 ${x} ${y})`);
         t.setAttribute('fill', '#fff');
-        t.style.fontSize = 'clamp(12px, 3vw, 20px)';
+        t.style.fontSize = 'clamp(24px, 6vw, none)';
         t.textContent = text;
         return t;
       }
