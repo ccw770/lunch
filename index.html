@@ -51,7 +51,7 @@
         flex: 1;
         height: 80px;
         padding: 8px;
-        font-size: clamp(28px, 8vw, none);
+        font-size: clamp(17.5px, 5vw, 25px);
         border-radius: 8px;
         border: 1px solid #ccc;
       }
@@ -60,7 +60,7 @@
       @media (max-width: 480px) {
         #newMenu {
           height: 60px;
-          font-size: clamp(32px, 8vw, none);
+          font-size: clamp(20px, 5vw, 30px);
           padding: 12px;
         }
       }
@@ -69,7 +69,7 @@
         width: 100px;
         min-width: 100px;
         height: 80px;
-        font-size: clamp(28px, 8vw, none);
+        font-size: clamp(17.5px, 5vw, 25px);
         background: #000;
         color: #fff;
         border: none;
@@ -84,7 +84,7 @@
           width: 80px;
           min-width: 80px;
           height: 60px;
-          font-size: clamp(28px, 8vw, none);
+          font-size: clamp(17.5px, 5vw, 25px);
         }
       }
       /* 룰렛 */
@@ -125,7 +125,7 @@
         margin-top: 30px;
         width: 100px;
         height: 80px;
-        font-size: clamp(28px, 10vw, none);
+        font-size: clamp(17.5px, 5vw, 25px);
         background: #000;
         color: #fff;
         border: none;
@@ -139,7 +139,7 @@
           width: 80px;
           height: 60px;
           margin-top: 20px;
-          font-size: clamp(32px, 10vw, none);
+          font-size: clamp(17.5px, 5vw, 25px);
         }
       }
       button:disabled {
@@ -148,7 +148,7 @@
       /* 결과 */
       #result {
         margin-top: 20px;
-        font-size: clamp(32px, 10vw, none);
+        font-size: clamp(17.5px, 5vw, 25px);
         font-weight: 700;
         color: #2c3e50;
       }
@@ -157,7 +157,7 @@
       @media (max-width: 480px) {
         #result {
           margin-top: 15px;
-          font-size: clamp(36px, 12vw, none);
+          font-size: clamp(20px, 6.25vw, 37.5px);
           text-align: center;
           padding: 0 10px;
         }
@@ -200,12 +200,12 @@
       }
       #popup h2 {
         margin: 0 0 12px;
-        font-size: clamp(36px, 12vw, none);
+        font-size: clamp(17.5px, 5vw, 25px);
       }
       #popup button {
         margin-top: 12px;
         padding: 8px 16px;
-        font-size: clamp(28px, 8vw, none);
+        font-size: clamp(17.5px, 5vw, 25px);
       }
       #confetti {
         position: fixed;
@@ -467,7 +467,7 @@
         t.setAttribute('text-anchor', 'middle');
         t.setAttribute('transform', `rotate(90 ${x} ${y})`);
         t.setAttribute('fill', '#fff');
-        t.style.fontSize = 'clamp(24px, 6vw, none)';
+        t.style.fontSize = 'clamp(17.5px, 5vw, 25px)';
         t.textContent = text;
         return t;
       }
