@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lunch Menu Roulette</title>
+  <style>
+    * { box-sizing: border-box; font-family: sans-serif; }
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 10px;
+      background: #f7f7f7;
+      overflow-x: hidden;
+    }
+    /* 입력 영역: 위로 2칸 이동 (-40px) */
+    #inputArea {
+      display: flex;
+      gap: 8px;
+      margin-top: -40px;
+      width: 100%;
+      max-width: 360px;
+    }
+    /* 입력창과 버튼 높이 2배 (80px) */
+    #newMenu {
+      flex: 1;
+      height: 80px;
+      padding: 8px;
+      font-size: clamp(14px, 4vw, 20px);
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    #addBtn {
+      width: 100px;
+      height: 80px;
+      font-size: clamp(14px, 4vw, 20px);
+      background: #000;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    /* 룰렛 */
+    #container {
+      position: relative;
+      width: 360px;
+      height: 360px;
+    }
+    svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+    /* 화살표 위로 0.3칸 (-18px) */
+    #pointer {
+      position: absolute;
+      top: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 12px solid transparent;
+      border-right: 12px solid transparent;
+      border-top: 16px solid #000;
+    }
+    /* 돌려 버튼 높이 2배 (80px) 및 아래로 0.5칸 (30px) */
+    #spinBtn {
+      margin-top: 30px;
+      width: 100px;
+      height: 80px;
+      font-size: clamp(14px, 5vw, 24px);
+      background: #000;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: 0.6;
+    }
+    /* 결과 */
+    #result {
+      margin-top: 20px;
+      font-size: clamp(16px, 5vw, 28px);
+      font-weight: 700;
+      color: #2c3e50;
+    }
+    /* 팝업 */
+    #overlay,
+    #popup,
+    #confetti { display: none; }
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+    }
+    #popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      z-index: 1001;
+    }
+    #popup h2 {
+      margin: 0 0 12px;
+      font-size: clamp(18px, 6vw, 32px);
+    }
+    #popup button {
+      margin-top: 12px;
+      padding: 8px 16px;
+      font-size: clamp(14px, 4vw, 20px);
+    }
+    #confetti {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 999;
+    }
+    .confetti {
+      position: fixed;
+      font-size: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="inputArea">
+    <input id="newMenu" type="text" placeholder="메뉴 추가" autocomplete="off">
+    <button id="addBtn" type="button">추가</button>
+  </div>
+  <div id="container">
+    <div id="pointer"></div>
+    <svg id="wheel" viewBox="-180 -180 360 360"></svg>
+  </div>
+  <button id="spinBtn">돌려!</button>
+  <div id="result"></div>
+
+  <div id="overlay"></div>
+  <div id="popup">
+    <h2 id="popupText"></h2>
+    <button id="closePopup">확인</button>
+  </div>
+  <div id="confetti"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script>
+    let menuItems = ["김치찌개","된장찌개","비빔밥","돈까스","제육볶음","라멘","샐러드","치킨","파스타"];
+    const baseColors = ["#f94144","#f3722c","#f9c74f","#90be6d","#43aa8b","#577590","#277da1","#6a4c93","#f9844a"];
+    const svg = document.getElementById('wheel');
+    const spinBtn = document.getElementById('spinBtn');
+    const addBtn = document.getElementById('addBtn');
+    const input = document.getElementById('newMenu');
+    const resultEl = document.getElementById('result');
+    const overlay = document.getElementById('overlay');
+    const popup = document.getElementById('popup');
+    const popupText = document.getElementById('popupText');
+    const closePopup = document.getElementById('closePopup');
+    const confettiContainer = document.getElementById('confetti');
+    const radius = 180; let paths = [], rotation = { deg: 0 };
+
+    drawWheel();
+    addBtn.addEventListener('click', () => {
+      const val = input.value.trim();
+      if (!val || menuItems.includes(val)) return;
+      menuItems = [...menuItems, val];
+      input.value = '';
+      resetWheel(); drawWheel();
+    });
+    spinBtn.addEventListener('click', spin);
+    closePopup.addEventListener('click', () => {
+      overlay.style.display = 'none'; popup.style.display = 'none'; confettiContainer.innerHTML = '';
+    });
+
+    function drawWheel() {
+      svg.innerHTML = '';
+      paths = [];
+      const sliceDeg = 360 / menuItems.length;
+      menuItems.forEach((label, i) => {
+        const start = i * sliceDeg;
+        const end = start + sliceDeg;
+        const path = createSlice(start, end, getColor(i));
+        path.style.cursor = 'pointer';
+        path.addEventListener('click', () => { menuItems = menuItems.filter((_, idx) => idx !== i); resetWheel(); drawWheel(); });
+        svg.appendChild(path); paths.push(path);
+        const pos = polarToCartesian(0, 0, radius * 0.55, start + sliceDeg / 2);
+        const txt = createLabel(label, pos.x, pos.y);
+        txt.style.cursor = 'pointer';
+        txt.addEventListener('click', () => { menuItems = menuItems.filter((_, idx) => idx !== i); resetWheel(); drawWheel(); });
+        svg.appendChild(txt);
+      });
+    }
+
+    function resetWheel() {
+      rotation.deg = 0;
+      svg.style.transform = 'rotate(-90deg)';
+    }
+
+    function spin() {
+      if (!menuItems.length) return;
+      spinBtn.disabled = true; resultEl.textContent = '';
+      gsap.to(paths, { scale: 1, duration: 0.2, ease: 'power1.out' });
+      const sliceDeg = 360 / menuItems.length;
+      const stopDeg = gsap.utils.random(0, 360, 1);
+      const fullRotations = gsap.utils.random(2, 3, 1);
+      const finalDeg = fullRotations * 360 + stopDeg;
+      gsap.to(rotation, {
+        deg: finalDeg,
+        duration: 6,
+        ease: 'power4.out',
+        onUpdate: () => svg.style.transform = `rotate(${rotation.deg - 90}deg)`,
+        onComplete: () => {
+          const normalizedDeg = (360 - ((rotation.deg - 90) % 360) + 360) % 360;
+          const idx = Math.floor(normalizedDeg / sliceDeg) % menuItems.length;
+          highlight(idx);
+          showPopup(`오늘의 점심은 "${menuItems[idx]}" 🌟`);
+          showConfetti();
+          spinBtn.disabled = false;
+        }
+      });
+    }
+
+    function highlight(i) {
+      gsap.to(paths[i], { scale: 1.05, transformOrigin: '50% 50%', duration: 0.4, yoyo: true, repeat: 1, ease: 'power1.inOut' });
+    }
+
+    function showPopup(text) {
+      popupText.textContent = text;
+      overlay.style.display = 'block'; popup.style.display = 'block';
+    }
+
+    function showConfetti() {
+      confettiContainer.innerHTML = '';
+      const emojis = ['🎉','🎊','✨','🎈','🥳'];
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const x0 = w / 2;
+      const y0 = h / 2;
+      for (let i = 0; i < 50; i++) {
+        const el = document.createElement('div');
+        el.className = 'confetti';
+        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        el.style.left = `${x0}px`;
+        el.style.top = `${y0}px`;
+        confettiContainer.appendChild(el);
+        const angle = Math.random() * 2 * Math.PI;
+        const dist = Math.random() * (h / 2);
+        gsap.to(el, {
+          x: Math.cos(angle) * dist,
+          y: Math.sin(angle) * dist,
+          rotation: Math.random() * 720,
+          opacity: 0,
+          duration: Math.random() * 1 + 0.7,
+          ease: 'power1.out',
+          onComplete: () => el.remove()
+        });
+      }
+    }
+
+    function polarToCartesian(cx, cy, r, deg) {
+      const rad = (deg - 90) * (Math.PI / 180);
+      return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+    }
+
+    function describeArc(cx, cy, r, start, end) {
+      const s = polarToCartesian(cx, cy, r, end);
+      const e = polarToCartesian(cx, cy, r, start);
+      const large = end - start <= 180 ? 0 : 1;
+      return ['M', cx, cy, 'L', s.x, s.y, 'A', r, r, 0, large, 0, e.x, e.y, 'Z'].join(' ');
+    }
+
+    function getColor(idx) {
+      return idx < baseColors.length ? baseColors[idx] : `hsl(${(idx * 47) % 360}deg 70% 50%)`;
+    }
+
+    function createSlice(s, e, c) {
+      const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      p.setAttribute('d', describeArc(0, 0, radius, s, e));
+      p.setAttribute('fill', c);
+      p.setAttribute('stroke', 'none');
+      return p;
+    }
+
+    function createLabel(text, x, y) {
+      const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t.setAttribute('x', x);
+      t.setAttribute('y', y);
+      t.setAttribute('dominant-baseline', 'middle');
+      t.setAttribute('text-anchor', 'middle');
+      t.setAttribute('transform', `rotate(90 ${x} ${y})`);
+      t.setAttribute('fill', '#fff');
+      t.style.fontSize = 'clamp(12px, 3vw, 20px)';
+      t.textContent = text;
+      return t;
+    }
+  </script>
+</body>
+</html>
